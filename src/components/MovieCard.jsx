@@ -1,15 +1,7 @@
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Button,
-  Box,
-} from "@mui/material";
+import { Card, CardMedia, CardContent, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const formatDuration = (min) =>
-  min ? `${Math.floor(min / 60)}h ${min % 60}m` : "N/A";
+const formatDuration = (min) => (min ? `${Math.floor(min / 60)}h ${min % 60}m` : "N/A");
 
 const MovieCard = ({ movie, user, onDelete }) => {
   const navigate = useNavigate();
@@ -39,11 +31,7 @@ const MovieCard = ({ movie, user, onDelete }) => {
       />
 
       <CardContent sx={{ p: 1.5 }}>
-        <Typography
-          variant="subtitle1"
-          fontWeight="bold"
-          noWrap
-        >
+        <Typography variant="subtitle1" fontWeight="bold" noWrap>
           {movie.title}
         </Typography>
 
@@ -55,14 +43,14 @@ const MovieCard = ({ movie, user, onDelete }) => {
           📅 {movie.releaseDate || "N/A"}
         </Typography>
 
-        {/* ADMIN ACTIONS */}
+        {/* Admin Actions */}
         {user?.role === "admin" && (
           <Box
             sx={{
               display: "flex",
               gap: 1,
               mt: 1,
-              flexWrap: "wrap",
+              flexDirection: { xs: "column", sm: "row" },
             }}
           >
             <Button
