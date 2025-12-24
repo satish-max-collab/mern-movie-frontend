@@ -47,7 +47,6 @@ const Home = () => {
       fetchMovies();
       return;
     }
-
     try {
       const res = await API.get(`/movies/search?q=${search}`);
       setMovies(res.data);
@@ -59,7 +58,6 @@ const Home = () => {
   // Delete movie
   const deleteMovie = async (id) => {
     if (!window.confirm("Delete this movie?")) return;
-
     try {
       await API.delete(`/movies/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -162,7 +160,11 @@ const Home = () => {
 
         <FormControl sx={{ minWidth: { xs: "100%", sm: 200 } }}>
           <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+          <Select
+            value={sortBy}
+            label="Sort By"
+            onChange={(e) => setSortBy(e.target.value)}
+          >
             <MenuItem value="">None</MenuItem>
             <MenuItem value="name">Name (A–Z)</MenuItem>
             <MenuItem value="rating">Rating</MenuItem>
@@ -179,7 +181,15 @@ const Home = () => {
         )}
 
         {sortedMovies.map((movie) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie._id}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={4}
+            lg={3}
+            xl={2}
+            key={movie._id}
+          >
             <MovieCard
               movie={movie}
               user={user}
