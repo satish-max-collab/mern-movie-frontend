@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home_old";
-import Login from "./pages/Login_old";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
 import AdminAddMovie from "./pages/AdminAddMovie";
 import AdminEditMovie from "./pages/AdminEditMovie";
 import { AuthProvider } from "./context/AuthContext";
