@@ -15,7 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import MovieCard from "../components/MovieCard";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api/axios"; // ✅ UPDATED IMPORT
+import API from "../api/axios";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -26,13 +26,13 @@ const Home = () => {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
 
-  /* ---------------- FETCH MOVIES ---------------- */
+  // Fetch movies
   const fetchMovies = async () => {
     try {
       const res = await API.get("/movies");
       setMovies(res.data);
     } catch (err) {
-      console.error("Fetch movies error:", err);
+      console.error(err);
     }
   };
 
@@ -40,10 +40,9 @@ const Home = () => {
     fetchMovies();
   }, []);
 
-  /* ---------------- SEARCH ---------------- */
+  // Search movies
   const handleSearch = async (e) => {
     e.preventDefault();
-
     if (!search.trim()) {
       fetchMovies();
       return;
@@ -53,19 +52,17 @@ const Home = () => {
       const res = await API.get(`/movies/search?q=${search}`);
       setMovies(res.data);
     } catch (err) {
-      console.error("Search error:", err);
+      console.error(err);
     }
   };
 
-  /* ---------------- DELETE (ADMIN) ---------------- */
+  // Delete movie
   const deleteMovie = async (id) => {
     if (!window.confirm("Delete this movie?")) return;
 
     try {
       await API.delete(`/movies/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       fetchMovies();
     } catch (err) {
@@ -73,7 +70,7 @@ const Home = () => {
     }
   };
 
-  /* ---------------- SORT ---------------- */
+  // Sort movies
   const sortedMovies = [...movies].sort((a, b) => {
     switch (sortBy) {
       case "name":
@@ -91,7 +88,7 @@ const Home = () => {
 
   return (
     <>
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <AppBar position="static">
         <Toolbar
           sx={{
@@ -100,22 +97,22 @@ const Home = () => {
             gap: 1,
           }}
         >
-          <Typography variant="h6">🎬 Movie App</Typography>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            🎬 Movie App
+          </Typography>
 
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             {user ? (
               <>
-                <Typography
-                  sx={{ display: { xs: "none", sm: "block" } }}
-                >
+                <Typography sx={{ display: { xs: "none", sm: "block" } }}>
                   Hi, {user.email}
                 </Typography>
 
                 {user.role === "admin" && (
                   <Button
                     size="small"
-                    variant="contained"
                     color="secondary"
+                    variant="contained"
                     onClick={() => navigate("/admin/add")}
                   >
                     Add Movie
@@ -124,8 +121,8 @@ const Home = () => {
 
                 <Button
                   size="small"
-                  variant="contained"
                   color="error"
+                  variant="contained"
                   onClick={logout}
                 >
                   Logout
@@ -135,6 +132,7 @@ const Home = () => {
               <Button
                 size="small"
                 variant="outlined"
+                color="inherit"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -144,7 +142,7 @@ const Home = () => {
         </Toolbar>
       </AppBar>
 
-      {/* ================= SEARCH + SORT ================= */}
+      {/* SEARCH + SORT */}
       <Box
         sx={{
           p: 3,
@@ -164,11 +162,7 @@ const Home = () => {
 
         <FormControl sx={{ minWidth: { xs: "100%", sm: 200 } }}>
           <InputLabel>Sort By</InputLabel>
-          <Select
-            value={sortBy}
-            label="Sort By"
-            onChange={(e) => setSortBy(e.target.value)}
-          >
+          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
             <MenuItem value="">None</MenuItem>
             <MenuItem value="name">Name (A–Z)</MenuItem>
             <MenuItem value="rating">Rating</MenuItem>
@@ -178,7 +172,7 @@ const Home = () => {
         </FormControl>
       </Box>
 
-      {/* ================= MOVIES GRID ================= */}
+      {/* MOVIE GRID */}
       <Grid container spacing={2} sx={{ p: { xs: 2, md: 3 } }}>
         {sortedMovies.length === 0 && (
           <Typography sx={{ ml: 2 }}>No movies found</Typography>
