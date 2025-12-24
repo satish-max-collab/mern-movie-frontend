@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { TextField, Button, Container, Typography } from "@mui/material";
 import API from "../api/axios";
-import { AuthContext } from "../context/AuthContext_old";
+import { AuthContext } from "../context/AuthContext";
 
 const AdminEditMovie = () => {
   const { id } = useParams();
