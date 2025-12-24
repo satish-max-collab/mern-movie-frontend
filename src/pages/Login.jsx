@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
@@ -10,22 +10,20 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { AuthContext } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { user, login } = useContext(AuthContext);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Redirect if already logged in
+  // Redirect if user already logged in
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      navigate("/");
+      navigate("/"); // Go to Home
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,11 +35,13 @@ const Login = () => {
         { email, password }
       );
 
-      // Save user in Context (and localStorage internally)
-      login(data);
+      // Store user with role and token in localStorage
+      localStorage.setItem("user", JSON.stringify(data));
 
-      navigate("/");
+      // Redirect to Home page
+      navigate("/"); 
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Invalid email or password");
     }
   };
@@ -99,7 +99,7 @@ const Login = () => {
           </Button>
         </form>
 
-        {/* Browse without login */}
+        {/* Link to browse Home without login */}
         <Box sx={{ mt: 3 }}>
           <Typography variant="body2">
             Or{" "}
