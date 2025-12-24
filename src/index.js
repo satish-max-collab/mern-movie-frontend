@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { AuthProvider } from "./context/AuthContext_old";
+import { AuthProvider } from "./context/AuthContext";
 
 // Optional: Material-UI baseline styles
 import { CssBaseline } from "@mui/material";
