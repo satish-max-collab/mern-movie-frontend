@@ -15,7 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import MovieCard from "../components/MovieCard";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api"; // axios instance with baseURL
+import API from "../api/axios"; // ✅ UPDATED IMPORT
 
 const Home = () => {
   const navigate = useNavigate();
@@ -106,9 +106,7 @@ const Home = () => {
             {user ? (
               <>
                 <Typography
-                  sx={{
-                    display: { xs: "none", sm: "block" },
-                  }}
+                  sx={{ display: { xs: "none", sm: "block" } }}
                 >
                   Hi, {user.email}
                 </Typography>
@@ -137,7 +135,6 @@ const Home = () => {
               <Button
                 size="small"
                 variant="outlined"
-                color="inherit"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -188,15 +185,7 @@ const Home = () => {
         )}
 
         {sortedMovies.map((movie) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={4}
-            lg={3}
-            xl={2}
-            key={movie._id}
-          >
+          <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie._id}>
             <MovieCard
               movie={movie}
               user={user}
