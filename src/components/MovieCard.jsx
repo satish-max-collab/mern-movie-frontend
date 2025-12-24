@@ -18,7 +18,6 @@ const MovieCard = ({ movie, user, onDelete }) => {
         "&:hover": { transform: "scale(1.03)" },
       }}
     >
-      {/* Poster */}
       <CardMedia
         component="img"
         image={movie.poster || "https://via.placeholder.com/300x450"}
@@ -43,7 +42,6 @@ const MovieCard = ({ movie, user, onDelete }) => {
           📅 {movie.releaseDate || "N/A"}
         </Typography>
 
-        {/* Admin Actions */}
         {user?.role === "admin" && (
           <Box
             sx={{
@@ -61,7 +59,6 @@ const MovieCard = ({ movie, user, onDelete }) => {
             >
               Edit
             </Button>
-
             <Button
               size="small"
               color="error"
