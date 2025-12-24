@@ -13,27 +13,26 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import MovieCard from "../components/MovieCard.jsx";
+import MovieCard from "../components/MovieCard";
 import { AuthContext } from "../context/AuthContext";
+import API from "../api"; // axios instance with baseURL
 
 const Home = () => {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-
   const token = user?.token;
 
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
 
-  // Fetch all movies
+  /* ---------------- FETCH MOVIES ---------------- */
   const fetchMovies = async () => {
     try {
-      const { data } = await axios.get("https://mern-movie-backend-s4t0.onrender.com/movies");
-      setMovies(data);
-    } catch (error) {
-      console.error(error);
+      const res = await API.get("/movies");
+      setMovies(res.data);
+    } catch (err) {
+      console.error("Fetch movies error:", err);
     }
   };
 
@@ -41,7 +40,7 @@ const Home = () => {
     fetchMovies();
   }, []);
 
-  // Search movies
+  /* ---------------- SEARCH ---------------- */
   const handleSearch = async (e) => {
     e.preventDefault();
 
@@ -51,44 +50,40 @@ const Home = () => {
     }
 
     try {
-      const { data } = await axios.get(
-        `https://mern-movie-backend-s4t0.onrender.com/movies/search?q=${search}`
-      );
-      setMovies(data);
-    } catch (error) {
-      console.error(error);
+      const res = await API.get(`/movies/search?q=${search}`);
+      setMovies(res.data);
+    } catch (err) {
+      console.error("Search error:", err);
     }
   };
 
-  // Delete movie (ADMIN)
+  /* ---------------- DELETE (ADMIN) ---------------- */
   const deleteMovie = async (id) => {
     if (!window.confirm("Delete this movie?")) return;
 
     try {
-      await axios.delete(`https://mern-movie-backend-s4t0.onrender.com/movies/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      await API.delete(`/movies/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       fetchMovies();
-    } catch (error) {
+    } catch (err) {
       alert("Only admin can delete movies");
     }
   };
 
-  // SORT LOGIC
+  /* ---------------- SORT ---------------- */
   const sortedMovies = [...movies].sort((a, b) => {
     switch (sortBy) {
       case "name":
         return a.title.localeCompare(b.title);
-
       case "rating":
         return (b.rating || 0) - (a.rating || 0);
-
       case "release":
         return new Date(b.releaseDate) - new Date(a.releaseDate);
-
       case "duration":
         return (b.duration || 0) - (a.duration || 0);
-
       default:
         return 0;
     }
@@ -96,23 +91,33 @@ const Home = () => {
 
   return (
     <>
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <AppBar position="static">
-        <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Toolbar
+          sx={{
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 1,
+          }}
+        >
           <Typography variant="h6">🎬 Movie App</Typography>
 
-          <Box>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             {user ? (
               <>
-                <Typography sx={{ mr: 2, display: "inline" }}>
+                <Typography
+                  sx={{
+                    display: { xs: "none", sm: "block" },
+                  }}
+                >
                   Hi, {user.email}
                 </Typography>
 
                 {user.role === "admin" && (
                   <Button
-                    color="secondary"
+                    size="small"
                     variant="contained"
-                    sx={{ mr: 1 }}
+                    color="secondary"
                     onClick={() => navigate("/admin/add")}
                   >
                     Add Movie
@@ -120,8 +125,9 @@ const Home = () => {
                 )}
 
                 <Button
-                  color="error"
+                  size="small"
                   variant="contained"
+                  color="error"
                   onClick={logout}
                 >
                   Logout
@@ -129,8 +135,9 @@ const Home = () => {
               </>
             ) : (
               <Button
-                color="inherit"
+                size="small"
                 variant="outlined"
+                color="inherit"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -140,18 +147,25 @@ const Home = () => {
         </Toolbar>
       </AppBar>
 
-      {/* SEARCH + SORT */}
-      <Box sx={{ p: 3, display: "flex", gap: 2 }}>
+      {/* ================= SEARCH + SORT ================= */}
+      <Box
+        sx={{
+          p: 3,
+          display: "flex",
+          gap: 2,
+          flexDirection: { xs: "column", sm: "row" },
+        }}
+      >
         <Box component="form" onSubmit={handleSearch} sx={{ flex: 1 }}>
           <TextField
             fullWidth
-            placeholder="Search movies by title or description..."
+            placeholder="Search movies..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </Box>
 
-        <FormControl sx={{ minWidth: 200 }}>
+        <FormControl sx={{ minWidth: { xs: "100%", sm: 200 } }}>
           <InputLabel>Sort By</InputLabel>
           <Select
             value={sortBy}
@@ -160,21 +174,29 @@ const Home = () => {
           >
             <MenuItem value="">None</MenuItem>
             <MenuItem value="name">Name (A–Z)</MenuItem>
-            <MenuItem value="rating">Rating (High–Low)</MenuItem>
-            <MenuItem value="release">Release Date (Newest)</MenuItem>
-            <MenuItem value="duration">Duration (Longest)</MenuItem>
+            <MenuItem value="rating">Rating</MenuItem>
+            <MenuItem value="release">Release Date</MenuItem>
+            <MenuItem value="duration">Duration</MenuItem>
           </Select>
         </FormControl>
       </Box>
 
-      {/* MOVIES GRID */}
-      <Grid container spacing={2} sx={{ p: 3 }}>
+      {/* ================= MOVIES GRID ================= */}
+      <Grid container spacing={2} sx={{ p: { xs: 2, md: 3 } }}>
         {sortedMovies.length === 0 && (
-          <Typography sx={{ ml: 3 }}>No movies found</Typography>
+          <Typography sx={{ ml: 2 }}>No movies found</Typography>
         )}
 
         {sortedMovies.map((movie) => (
-          <Grid item xs={6} sm={4} md={3} lg={2} key={movie._id}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={4}
+            lg={3}
+            xl={2}
+            key={movie._id}
+          >
             <MovieCard
               movie={movie}
               user={user}
