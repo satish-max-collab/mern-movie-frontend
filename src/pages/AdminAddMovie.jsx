@@ -36,7 +36,7 @@ const AdminAddMovie = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/movies",
+        "https://mern-movie-backend-s4t0.onrender.com/movies",
         {
           ...movie,
           rating: Number(movie.rating),

@@ -33,7 +33,7 @@ const Login = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://mern-movie-backend-s4t0.onrender.com/api/auth/login",
         { email, password }
       );
 

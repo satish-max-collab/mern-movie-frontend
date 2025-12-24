@@ -30,7 +30,7 @@ const Home = () => {
   // Fetch all movies
   const fetchMovies = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/movies");
+      const { data } = await axios.get("https://mern-movie-backend-s4t0.onrender.com/movies");
       setMovies(data);
     } catch (error) {
       console.error(error);
@@ -52,7 +52,7 @@ const Home = () => {
 
     try {
       const { data } = await axios.get(
-        `http://localhost:5000/movies/search?q=${search}`
+        `https://mern-movie-backend-s4t0.onrender.com/movies/search?q=${search}`
       );
       setMovies(data);
     } catch (error) {
@@ -65,7 +65,7 @@ const Home = () => {
     if (!window.confirm("Delete this movie?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/movies/${id}`, {
+      await axios.delete(`https://mern-movie-backend-s4t0.onrender.com/movies/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchMovies();
