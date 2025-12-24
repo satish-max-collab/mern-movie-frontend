@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -13,13 +13,13 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import MovieCard from "../components/MovieCard";
-import { AuthContext } from "../context/AuthContext";
-import API from "../api/axios";
+import axios from "axios";
+import MovieCard from "../components/MovieCard.jsx";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext);
+
+  const user = JSON.parse(localStorage.getItem("user"));
   const token = user?.token;
 
   const [movies, setMovies] = useState([]);
@@ -29,10 +29,10 @@ const Home = () => {
   // Fetch movies
   const fetchMovies = async () => {
     try {
-      const res = await API.get("/movies");
-      setMovies(res.data);
-    } catch (err) {
-      console.error(err);
+      const { data } = await axios.get("https://mern-movie-backend-s4t0.onrender.com/movies");
+      setMovies(data);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -40,45 +40,59 @@ const Home = () => {
     fetchMovies();
   }, []);
 
-  // Search movies
+  // Search
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!search.trim()) {
       fetchMovies();
       return;
     }
+
     try {
-      const res = await API.get(`/movies/search?q=${search}`);
-      setMovies(res.data);
-    } catch (err) {
-      console.error(err);
+      const { data } = await axios.get(
+        `https://mern-movie-backend-s4t0.onrender.com/movies/search?q=${search}`
+      );
+      setMovies(data);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  // Delete movie
+  // Delete (admin)
   const deleteMovie = async (id) => {
     if (!window.confirm("Delete this movie?")) return;
+
     try {
-      await API.delete(`/movies/${id}`, {
+      await axios.delete(`https://mern-movie-backend-s4t0.onrender.com/movies/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchMovies();
-    } catch (err) {
+    } catch (error) {
       alert("Only admin can delete movies");
     }
   };
 
-  // Sort movies
+  // Logout
+  const logoutHandler = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  // ✅ SORT LOGIC
   const sortedMovies = [...movies].sort((a, b) => {
     switch (sortBy) {
       case "name":
         return a.title.localeCompare(b.title);
+
       case "rating":
         return (b.rating || 0) - (a.rating || 0);
+
       case "release":
         return new Date(b.releaseDate) - new Date(a.releaseDate);
+
       case "duration":
         return (b.duration || 0) - (a.duration || 0);
+
       default:
         return 0;
     }
@@ -88,49 +102,35 @@ const Home = () => {
     <>
       {/* HEADER */}
       <AppBar position="static">
-        <Toolbar
-          sx={{
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 1,
-          }}
-        >
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            🎬 Movie App
-          </Typography>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography variant="h6">🎬 Movie App</Typography>
 
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+          <Box>
             {user ? (
               <>
-                <Typography sx={{ display: { xs: "none", sm: "block" } }}>
+                <Typography sx={{ mr: 2, display: "inline" }}>
                   Hi, {user.email}
                 </Typography>
 
                 {user.role === "admin" && (
                   <Button
-                    size="small"
                     color="secondary"
                     variant="contained"
+                    sx={{ mr: 1 }}
                     onClick={() => navigate("/admin/add")}
                   >
                     Add Movie
                   </Button>
                 )}
 
-                <Button
-                  size="small"
-                  color="error"
-                  variant="contained"
-                  onClick={logout}
-                >
+                <Button color="error" variant="contained" onClick={logoutHandler}>
                   Logout
                 </Button>
               </>
             ) : (
               <Button
-                size="small"
-                variant="outlined"
                 color="inherit"
+                variant="outlined"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -141,14 +141,7 @@ const Home = () => {
       </AppBar>
 
       {/* SEARCH + SORT */}
-      <Box
-        sx={{
-          p: 3,
-          display: "flex",
-          gap: 2,
-          flexDirection: { xs: "column", sm: "row" },
-        }}
-      >
+      <Box sx={{ p: 3, display: "flex", gap: 2 }}>
         <Box component="form" onSubmit={handleSearch} sx={{ flex: 1 }}>
           <TextField
             fullWidth
@@ -158,7 +151,7 @@ const Home = () => {
           />
         </Box>
 
-        <FormControl sx={{ minWidth: { xs: "100%", sm: 200 } }}>
+        <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>Sort By</InputLabel>
           <Select
             value={sortBy}
@@ -167,29 +160,21 @@ const Home = () => {
           >
             <MenuItem value="">None</MenuItem>
             <MenuItem value="name">Name (A–Z)</MenuItem>
-            <MenuItem value="rating">Rating</MenuItem>
-            <MenuItem value="release">Release Date</MenuItem>
-            <MenuItem value="duration">Duration</MenuItem>
+            <MenuItem value="rating">Rating (High–Low)</MenuItem>
+            <MenuItem value="release">Release Date (Newest)</MenuItem>
+            <MenuItem value="duration">Duration (Longest)</MenuItem>
           </Select>
         </FormControl>
       </Box>
 
-      {/* MOVIE GRID */}
-      <Grid container spacing={2} sx={{ p: { xs: 2, md: 3 } }}>
+      {/* MOVIES GRID */}
+      <Grid container spacing={2} sx={{ p: 3 }}>
         {sortedMovies.length === 0 && (
-          <Typography sx={{ ml: 2 }}>No movies found</Typography>
+          <Typography sx={{ ml: 3 }}>No movies found</Typography>
         )}
 
         {sortedMovies.map((movie) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={4}
-            lg={3}
-            xl={2}
-            key={movie._id}
-          >
+          <Grid item xs={6} sm={4} md={3} lg={2} key={movie._id}>
             <MovieCard
               movie={movie}
               user={user}
